@@ -23,7 +23,12 @@ public class ContainerController {
 	@Autowired
 	ICalculateShippingContainers icalShippinContainers;
 	
-	
+	/***
+	 * 
+	 * @param budget
+	 * @param requestContainers
+	 * @return
+	 */
 	@PostMapping("generate/kpi")
 	public ResponseEntity<Object> generateOutputContainers(@RequestParam("budget") double budget, @RequestBody String requestContainers){
 		return icalShippinContainers.requestContainers(budget, requestContainers);		
