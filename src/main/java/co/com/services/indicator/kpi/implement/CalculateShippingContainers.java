@@ -1,6 +1,6 @@
 package co.com.services.indicator.kpi.implement;
 
-import java.io.IOException;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +17,7 @@ import co.com.services.indicator.kpi.model.ListContainers;
 import co.com.services.indicator.kpi.model.RequestContainers;
 import co.com.services.indicator.kpi.model.StatsContainers;
 import co.com.services.indicator.kpi.services.ICalculateShippingContainers;
+import co.com.services.indicator.kpi.util.Constantes;
 
 @Service
 public class CalculateShippingContainers implements ICalculateShippingContainers {
@@ -40,7 +41,8 @@ public class CalculateShippingContainers implements ICalculateShippingContainers
 			listResult = selectContainers.selectContainers(budget, listContainers.getListContainers());
 
 		} catch (Exception e) {
-			logger.info("Error ejecutando funcion requestContainers: " + e.getMessage());
+			logger.info(Constantes.ERROR_REQUEST_CONTAINERS + e.getMessage());
+			return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
 		}
 
 		return new ResponseEntity<>(listResult, HttpStatus.OK);
@@ -52,7 +54,8 @@ public class CalculateShippingContainers implements ICalculateShippingContainers
 		try {
 			statsContainers = kpiDao.selectStats();
 		} catch (Exception e) {
-			logger.info("Error ejecutando funcion getStatsContainers : " + e.getMessage());
+			logger.info(Constantes.ERROR_STATS_CONTAINERS + e.getMessage());
+			return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
 		}
 		return new ResponseEntity<>(statsContainers, HttpStatus.OK);
 	}

@@ -41,8 +41,7 @@ public class ProcessKpiDao {
 
 			stats = mapper.readValue(respons, StatsContainers.class);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Error ejecutando la funtion selectStats: " + e.getMessage());
 		}
 		return stats;
 	}

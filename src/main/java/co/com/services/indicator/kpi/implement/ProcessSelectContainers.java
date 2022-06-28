@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import co.com.services.indicator.kpi.services.IProcessSelectContainers;
+import co.com.services.indicator.kpi.util.Constantes;
 import co.com.services.indicator.kpi.dao.ProcessKpiDao;
 import co.com.services.indicator.kpi.model.RequestContainers;
 import co.com.services.indicator.kpi.model.StatsContainers;
@@ -59,7 +60,7 @@ public class ProcessSelectContainers implements IProcessSelectContainers {
 					}
 				}
 
-				this.calculateContainersDispached(resultContainersdispatched, resulContainersNotdispatched, budget);
+				calculateContainersDispached(resultContainersdispatched, resulContainersNotdispatched, budget);
 
 			} else {
 				logger.info("Se pueden despachar todos los contenedores");
@@ -68,7 +69,7 @@ public class ProcessSelectContainers implements IProcessSelectContainers {
 						(c, b) -> c.getNameContainer().compareTo(b.getNameContainer()));
 			}
 			if (resultContainersdispatched.size() == 0) {
-				response.setMessage("El presupuesto ingresado no cumple para el envio de contenedores");
+				response.setMessage(Constantes.MESSAGE_BUDGET);
 				resultContainersdispatched.add(response);
 			} else {
 				Collections.sort(resultContainersdispatched,
@@ -88,17 +89,23 @@ public class ProcessSelectContainers implements IProcessSelectContainers {
 
 		double totContainersDispatched = 0.0;
 		double totContainerssNotdispatched = 0.0;
+		double sumContainerdispatched = 0.0;
+		double sumContainersNotdispatched = 0.0;
 		double totSumBudget = 0.0;
 
 		totContainersDispatched = statsContainers.getContainers_dispatched();
 		totContainerssNotdispatched = statsContainers.getContainers_not_dispatched();
 		totSumBudget = statsContainers.getBudget_used();
 
-		double sumContainerdispatched = resultContainersdispatched.stream().filter(c -> c.getContainerValue() > 0)
-				.mapToDouble(c -> c.getContainerValue()).sum();
+		if (resultContainersdispatched.size() > 0) {
+			sumContainerdispatched = resultContainersdispatched.stream().filter(c -> c.getContainerValue() > 0)
+					.mapToDouble(c -> c.getContainerValue()).sum();
+		}
 
-		double sumContainersNotdispatched = resulContainersNotdispatched.stream().filter(c -> c.getContainerValue() > 0)
-				.mapToDouble(c -> c.getContainerValue()).sum();
+		if (resulContainersNotdispatched.size() > 0) {
+			sumContainersNotdispatched = resulContainersNotdispatched.stream().filter(c -> c.getContainerValue() > 0)
+					.mapToDouble(c -> c.getContainerValue()).sum();
+		}
 
 		totContainersDispatched += sumContainerdispatched;
 

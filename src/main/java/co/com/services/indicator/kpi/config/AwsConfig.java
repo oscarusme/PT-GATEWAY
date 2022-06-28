@@ -13,7 +13,7 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 public class AwsConfig {
 
 	@Bean
-	public AmazonDynamoDB awsDinamoDbClient() {
+	public AmazonDynamoDB awsDinamoDbClient() {	
 
 		BasicAWSCredentials awsCreds = new BasicAWSCredentials("",
 				"");
