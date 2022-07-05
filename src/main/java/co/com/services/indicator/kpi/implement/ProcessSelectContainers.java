@@ -8,13 +8,16 @@ import java.util.OptionalDouble;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import co.com.services.indicator.kpi.services.IProcessSelectContainers;
 import co.com.services.indicator.kpi.util.Constantes;
 import co.com.services.indicator.kpi.dao.ProcessKpiDao;
+import co.com.services.indicator.kpi.model.ListResponseContainers;
 import co.com.services.indicator.kpi.model.RequestContainers;
-import co.com.services.indicator.kpi.model.StatsContainers;
+import co.com.services.indicator.kpi.model.ResponseContainers;
+import co.com.services.indicator.kpi.model.ResponseStastContainers;
 
 @Service
 public class ProcessSelectContainers implements IProcessSelectContainers {
@@ -24,10 +27,14 @@ public class ProcessSelectContainers implements IProcessSelectContainers {
 
 	private static Logger logger = LoggerFactory.getLogger(ProcessSelectContainers.class);
 
-	public List<RequestContainers> selectContainers(double budget, List<RequestContainers> listContainers) {
+	@Async("threadPoolTaskExecutor")
+	public ResponseContainers selectContainers(double budget, List<RequestContainers> listContainers) {
 
 		List<RequestContainers> resultContainersdispatched = new ArrayList<>();
 		List<RequestContainers> resulContainersNotdispatched = new ArrayList<>();
+		ListResponseContainers responseContainersList = new ListResponseContainers();
+		ResponseContainers responseContainers = new ResponseContainers();
+
 		try {
 			RequestContainers response = new RequestContainers();
 
@@ -79,42 +86,52 @@ public class ProcessSelectContainers implements IProcessSelectContainers {
 			logger.info("Error: " + e.getMessage());
 		}
 
-		return resultContainersdispatched;
+		responseContainersList.setListResponseContainers(resultContainersdispatched);
+
+		responseContainers.setResponseContainers(responseContainersList);
+
+		return responseContainers;
 	}
 
 	private void calculateContainersDispached(List<RequestContainers> resultContainersdispatched,
 			List<RequestContainers> resulContainersNotdispatched, double totBudget) {
 
-		StatsContainers statsContainers = kpiDao.selectStats();
+		try {
 
-		double totContainersDispatched = 0.0;
-		double totContainerssNotdispatched = 0.0;
-		double sumContainerdispatched = 0.0;
-		double sumContainersNotdispatched = 0.0;
-		double totSumBudget = 0.0;
+			ResponseStastContainers statsContainers = kpiDao.selectStats();
 
-		totContainersDispatched = statsContainers.getContainers_dispatched();
-		totContainerssNotdispatched = statsContainers.getContainers_not_dispatched();
-		totSumBudget = statsContainers.getBudget_used();
+			double totContainersDispatched = 0.0;
+			double totContainerssNotdispatched = 0.0;
+			double sumContainerdispatched = 0.0;
+			double sumContainersNotdispatched = 0.0;
+			double totSumBudget = 0.0;
 
-		if (resultContainersdispatched.size() > 0) {
-			sumContainerdispatched = resultContainersdispatched.stream().filter(c -> c.getContainerValue() > 0)
-					.mapToDouble(c -> c.getContainerValue()).sum();
+			totContainersDispatched = statsContainers.getResponseStats().getContainers_dispatched();
+			totContainerssNotdispatched = statsContainers.getResponseStats().getContainers_not_dispatched();
+			totSumBudget = statsContainers.getResponseStats().getBudget_used();
+
+			if (resultContainersdispatched.size() > 0) {
+				sumContainerdispatched = resultContainersdispatched.stream().filter(c -> c.getContainerValue() > 0)
+						.mapToDouble(c -> c.getContainerValue()).sum();
+			}
+
+			if (resulContainersNotdispatched.size() > 0) {
+				sumContainersNotdispatched = resulContainersNotdispatched.stream()
+						.filter(c -> c.getContainerValue() > 0).mapToDouble(c -> c.getContainerValue()).sum();
+			}
+
+			totContainersDispatched += sumContainerdispatched;
+
+			totContainerssNotdispatched += sumContainersNotdispatched;
+
+			totSumBudget += totBudget;
+
+			kpiDao.updateStast(mathRound(totSumBudget), mathRound(totContainersDispatched),
+					mathRound(totContainerssNotdispatched));
+
+		} catch (Exception e) {
+			logger.info("Error ejecutando la funcion calculateContainersDispached: " + e.getMessage());
 		}
-
-		if (resulContainersNotdispatched.size() > 0) {
-			sumContainersNotdispatched = resulContainersNotdispatched.stream().filter(c -> c.getContainerValue() > 0)
-					.mapToDouble(c -> c.getContainerValue()).sum();
-		}
-
-		totContainersDispatched += sumContainerdispatched;
-
-		totContainerssNotdispatched += sumContainersNotdispatched;
-
-		totSumBudget += totBudget;
-
-		kpiDao.updateStast(mathRound(totSumBudget), mathRound(totContainersDispatched),
-				mathRound(totContainerssNotdispatched));
 
 	}
 
