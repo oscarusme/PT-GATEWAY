@@ -15,16 +15,13 @@ import com.amazonaws.services.dynamodbv2.document.Item;
 import com.amazonaws.services.dynamodbv2.document.PrimaryKey;
 import com.amazonaws.services.dynamodbv2.document.Table;
 import com.amazonaws.services.dynamodbv2.document.UpdateItemOutcome;
-import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-import com.amazonaws.services.dynamodbv2.model.Put;
-import com.amazonaws.services.dynamodbv2.model.PutItemRequest;
-import com.amazonaws.services.dynamodbv2.model.PutItemResult;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
 
+import co.com.services.indicator.kpi.config.InitConfig;
 import co.com.services.indicator.kpi.implement.CalculateShippingContainers;
 import co.com.services.indicator.kpi.model.ResponseStastContainers;
 import co.com.services.indicator.kpi.model.StatsContainers;
+import co.com.services.indicator.kpi.util.Constantes;
 
 @Service
 public class ProcessKpiDao {
@@ -37,15 +34,12 @@ public class ProcessKpiDao {
 
 	@Autowired
 	private ObjectMapper mapper;
-	
-	@Autowired
-	private Gson gson;
 
 	public ResponseStastContainers selectStats() {
 		StatsContainers stats = new StatsContainers();
 		ResponseStastContainers responseStats = new ResponseStastContainers();
 		try {
-			Item item = table.getItem("key_kpi", "5221403");
+			Item item = table.getItem(InitConfig.key_Kpi(), InitConfig.val_key_Kpi());
 
 			String respons = item.toJSONPretty();
 
@@ -77,7 +71,7 @@ public class ProcessKpiDao {
 			expressionAttributeValues.put(":val2", stats.getContainers_dispatched());
 			expressionAttributeValues.put(":val3", stats.getContainers_not_dispatched());
 
-			UpdateItemOutcome outcome = table.updateItem(new PrimaryKey("key_kpi", "5221403"),
+			UpdateItemOutcome outcome = table.updateItem(new PrimaryKey(InitConfig.key_Kpi(), InitConfig.val_key_Kpi()),
 					"set #P = :val1, #F = :val2, #H = :val3", expressionAttributeNames, expressionAttributeValues);
 
 			Object result = outcome.getUpdateItemResult().getSdkResponseMetadata();

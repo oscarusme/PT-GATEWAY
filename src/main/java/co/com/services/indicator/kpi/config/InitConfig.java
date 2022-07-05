@@ -12,4 +12,12 @@ public class InitConfig {
 	public static String conectionKeyAws() {
 		return System.getenv("SECRECT_KEY");
 	}
+	
+	public static String key_Kpi() {
+		return System.getenv("KEY_KPI");
+	}
+	
+	public static String val_key_Kpi() {
+		return System.getenv("VAL_KEY_KPI");
+	}
 }
