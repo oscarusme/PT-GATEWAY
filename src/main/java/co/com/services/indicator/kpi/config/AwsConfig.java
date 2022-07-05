@@ -9,14 +9,14 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 
-@Configuration
+
 public class AwsConfig {
 
 	@Bean
 	public AmazonDynamoDB awsDinamoDbClient() {	
 
-		BasicAWSCredentials awsCreds = new BasicAWSCredentials("",
-				"");
+		BasicAWSCredentials awsCreds = new BasicAWSCredentials(InitConfig.conectionIdAws(),
+				InitConfig.conectionKeyAws());
 
 		return AmazonDynamoDBClientBuilder.standard().withRegion(Regions.US_EAST_1)
 				.withCredentials(new AWSStaticCredentialsProvider(awsCreds)).build();

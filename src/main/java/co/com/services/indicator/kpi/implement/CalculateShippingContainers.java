@@ -15,6 +15,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import co.com.services.indicator.kpi.dao.ProcessKpiDao;
 import co.com.services.indicator.kpi.model.ListContainers;
 import co.com.services.indicator.kpi.model.RequestContainers;
+import co.com.services.indicator.kpi.model.ResponseContainers;
+import co.com.services.indicator.kpi.model.ResponseStastContainers;
 import co.com.services.indicator.kpi.model.StatsContainers;
 import co.com.services.indicator.kpi.services.ICalculateShippingContainers;
 import co.com.services.indicator.kpi.util.Constantes;
@@ -34,7 +36,7 @@ public class CalculateShippingContainers implements ICalculateShippingContainers
 	private ProcessKpiDao kpiDao;
 
 	public ResponseEntity<Object> requestContainers(double budget, String listRequestContainers) {
-		List<RequestContainers> listResult = new ArrayList<>();
+		ResponseContainers listResult = new ResponseContainers();
 		try {
 			ListContainers listContainers = mapper.readValue(listRequestContainers, ListContainers.class);
 
@@ -50,13 +52,13 @@ public class CalculateShippingContainers implements ICalculateShippingContainers
 
 	public ResponseEntity<Object> getStatsContainers() {
 
-		StatsContainers statsContainers = new StatsContainers();
+		ResponseStastContainers responseStats = new ResponseStastContainers();
 		try {
-			statsContainers = kpiDao.selectStats();
+			responseStats = kpiDao.selectStats();
 		} catch (Exception e) {
 			logger.info(Constantes.ERROR_STATS_CONTAINERS + e.getMessage());
 			return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
 		}
-		return new ResponseEntity<>(statsContainers, HttpStatus.OK);
+		return new ResponseEntity<>(responseStats, HttpStatus.OK);
 	}
 }
