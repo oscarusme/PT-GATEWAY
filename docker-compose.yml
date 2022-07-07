@@ -1,0 +1,20 @@
+version: '2'
+services:
+    ptgateway:
+        container_name: ptgateway
+        build:
+            context: ptgateway
+            dockerfile: Dockerfile
+        image: oscarusme/ptgateway:latest
+        environment:
+            - AWS_ACCESS_KEY=AWS_ACCESS_KEY
+            - AWS_ACCESS_KEY=AWS_ACCESS_KEY
+            - KEY_KPI=key_kpi
+            - VAL_KEY_KPI=234
+        ports:
+            - 80:8080
+        networks:
+            - app-network
+networks:
+    app-network:
+        driver: bridge
